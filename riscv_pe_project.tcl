@@ -51,11 +51,21 @@ set script_file "riscv_pe_project.tcl"
 
 source common/parse_args.tcl
 
+# sets is_cache_available
+source common/cache_availability.tcl
+
+# Update name of project if the cache was set for the core
+if { $cache && [dict get $is_cache_available $project_name] } {
+  set project_folder [string map {"pe" "cache_pe"} $project_name]
+} else {
+  set project_folder $project_name
+}
+
 # Set the directory path for the original project from where this script was exported
-set orig_proj_dir "[file normalize "$origin_dir/$project_name"]"
+set orig_proj_dir "[file normalize "$origin_dir/$project_folder"]"
 
 # Create project
-create_project -force ${project_name} ./${project_name} -part $part
+create_project -force ${project_folder} ./${project_folder} -part $part
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -94,6 +104,8 @@ proc cr_bd_riscv_pe { parentCell lmem } {
   variable project_name
   variable cache
   variable maxi_ports
+  variable is_cache_available
+
   # CHANGE DESIGN NAME HERE
   set design_name ${project_name}
 
