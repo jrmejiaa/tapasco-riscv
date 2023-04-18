@@ -18,7 +18,10 @@ space := $(null) #
 comma := ,
 CORE_LIST=$(patsubst riscv/%,%,$(wildcard riscv/*))
 PE_LIST=$(addsuffix _pe, $(CORE_LIST))
-PE_LIST_SEPERATED=$(subst $(space),$(comma),$(strip $(PE_LIST)))
+PE_CACHE_LIST=$(addsuffix _cache_pe, $(CORE_LIST))
+
+PE_LIST_SEPARATED=$(subst $(space),$(comma),$(strip $(PE_LIST)))
+PE_CACHE_LIST_SEPARATED=$(subst $(space),$(comma),$(strip $(PE_CACHE_LIST)))
 
 all: $(PE_LIST)
 
@@ -34,11 +37,11 @@ list:
 	$<
 
 uninstall:
-	rm -rf $(TAPASCO_WORK_DIR)/core/{${PE_LIST_SEPERATED}}*
+	rm -rf $(TAPASCO_WORK_DIR)/core/{${PE_LIST_SEPARATED}}*
 
 clean: uninstall
-	rm -rf IP/{${PE_LIST_SEPERATED},riscv}
-	rm -rf Orca dummy* ${PE_LIST} package_picorv32
+	rm -rf IP/{${PE_LIST_SEPARATED},${PE_CACHE_LIST_SEPARATED},riscv}
+	rm -rf Orca dummy* ${PE_LIST} ${PE_CACHE_LIST} package_picorv32
 	rm -rf riscv/flute32/{Flute,*RV*}
 	rm -rf riscv/piccolo32/{Piccolo,*RV*}
 	rm -rf riscv/picorv32/picorv32
