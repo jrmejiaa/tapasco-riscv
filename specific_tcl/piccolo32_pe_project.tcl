@@ -15,7 +15,7 @@ set_property -dict [ list \
   CONFIG.MAX_BURST_LENGTH {1} \
   ] [get_bd_intf_pins /piccolo_0/cpu_imem_master]
 
-if { $cache } {
+if { $cache && [dict get $is_cache_available $project_name] } {
   # Create interface connections
   connect_bd_intf_net -intf_net piccolo_0_cpu_dmem_master [get_bd_intf_pins cache_system_0/core_dmem] [get_bd_intf_pins piccolo_0/cpu_dmem_master]
   connect_bd_intf_net -intf_net piccolo_0_cpu_imem_master [get_bd_intf_pins cache_system_0/core_imem] [get_bd_intf_pins piccolo_0/cpu_imem_master]
@@ -44,7 +44,7 @@ create_bd_intf_port -mode Slave -vlnv esa.informatik.tu-darmstadt.de:user:DMI_rt
 connect_bd_intf_net [get_bd_intf_ports DMI] [get_bd_intf_pins piccolo_0/DMI]
 
 
-if { $cache } {
+if { $cache && [dict get $is_cache_available $project_name] } {
   proc create_specific_addr_segs {} {
     variable lmem
     # Create specific address segments

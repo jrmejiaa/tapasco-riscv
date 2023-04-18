@@ -10,7 +10,7 @@ if {$maxi_ports == 2} {
 	connect_bd_net -net rst_CLK_100M_peripheral_aresetn [get_bd_pins dmaOffset2/RST_N]
 }
 
-if { $cache } {
+if { $cache && [dict get $is_cache_available $project_name] } {
 	connect_bd_net -net CLK_1 [get_bd_pins cache_system_0/CLK]
 	connect_bd_net -net RVController_0_rv_rstn [get_bd_pins cache_system_0/RST_N]
 }

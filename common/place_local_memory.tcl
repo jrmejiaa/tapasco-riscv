@@ -39,7 +39,7 @@ set_property -dict [ list \
   CONFIG.Use_RSTB_Pin {true} \
   ] $imem
 
-if { $cache } {
+if { $cache && [dict get $is_cache_available $project_name] } {
   # Create instance: cache_system and set basic connections and properties
   set cache_system_0 [ create_bd_cell -type ip -vlnv esa.informatik.tu-darmstadt.de:user:CacheSystem:1.0 cache_system_0 ]
   set_property -dict [ list \
