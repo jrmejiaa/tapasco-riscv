@@ -1,4 +1,4 @@
-ipx::package_project -root_dir IP/$project_folder -module $project_name -generated_files -import_files -force
+ipx::package_project -root_dir IP/$project_name -module $project_name -generated_files -import_files -force
 
 # Set platform compatibility
 set_property supported_families {virtex7 Beta qvirtex7 Beta kintex7 Beta kintex7l Beta qkintex7 Beta qkintex7l Beta artix7 Beta artix7l Beta aartix7 Beta qartix7 Beta zynq Beta qzynq Beta azynq Beta spartan7 Beta aspartan7 Beta virtexu Beta virtexuplus Beta virtexuplusHBM Beta kintexuplus Beta zynquplus Beta kintexu Beta} [ipx::current_core]
@@ -36,5 +36,5 @@ ipx::update_checksums $core
 ipx::save_core $core
 
 ipx::check_integrity -quiet $core
-ipx::archive_core IP/$project_folder/esa.informatik.tu-darmstadt.de_tapasco_${project_name}_1.0.zip $core
+ipx::archive_core IP/$project_name/esa.informatik.tu-darmstadt.de_tapasco_${project_name}_1.0.zip $core
 ipx::unload_core component_1
