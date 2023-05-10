@@ -10,7 +10,7 @@ set is_cache_available [list \
   "swerv_pe"        {false} \
   "scr1_pe"         {true} \
   "cva6_pe"         {false} \
-  "swerv_eh2_pe"    {false} \
+  "swerv_eh2_pe"    {true} \
   "cva5_pe"         {false} \
 ]
 
