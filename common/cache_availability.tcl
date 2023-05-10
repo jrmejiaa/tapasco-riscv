@@ -4,8 +4,8 @@ set is_cache_available [list \
   "orca_mxp_pe"     {false} \
   "piccolo32_pe"    {true} \
   "piccolo64_pe"    {true} \
-  "flute32_pe"      {false} \
-  "flute64_pe"      {false} \
+  "flute32_pe"      {true} \
+  "flute64_pe"      {true} \
   "picorv32_pe"     {false} \
   "swerv_pe"        {false} \
   "scr1_pe"         {false} \
