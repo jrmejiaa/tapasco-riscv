@@ -1,5 +1,5 @@
 set is_cache_available [list \
-  "vexriscv_pe"     {false} \
+  "vexriscv_pe"     {true} \
   "orca_pe"         {false} \
   "orca_mxp_pe"     {false} \
   "piccolo32_pe"    {true} \
