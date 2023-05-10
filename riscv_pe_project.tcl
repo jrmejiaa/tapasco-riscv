@@ -96,8 +96,10 @@ update_ip_catalog -rebuild
 proc cr_bd_riscv_pe { parentCell lmem } {
   variable project_name
   variable cache
+  variable set_cache_sys
   variable maxi_ports
   variable is_cache_available
+  variable is_harvard_arch
 
   # CHANGE DESIGN NAME HERE
   set design_name ${project_name}
