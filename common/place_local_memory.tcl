@@ -39,36 +39,53 @@ set_property -dict [ list \
   CONFIG.Use_RSTB_Pin {true} \
   ] $imem
 
-if { $cache && [dict get $is_cache_available $project_name] } {
+if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
   # Create instance: cache_system and set basic connections and properties
   set cache_system_0 [ create_bd_cell -type ip -vlnv esa.informatik.tu-darmstadt.de:user:CacheSystem:1.0 cache_system_0 ]
-  set_property -dict [ list \
-    CONFIG.SUPPORTS_NARROW_BURST {0} \
-    CONFIG.NUM_READ_OUTSTANDING {1} \
-    CONFIG.NUM_WRITE_OUTSTANDING {1} \
-    CONFIG.MAX_BURST_LENGTH {1} \
-    ] [get_bd_intf_pins /cache_system_0/dmem]
 
-  set_property -dict [ list \
-    CONFIG.SUPPORTS_NARROW_BURST {0} \
-    CONFIG.NUM_READ_OUTSTANDING {1} \
-    CONFIG.NUM_WRITE_OUTSTANDING {1} \
-    CONFIG.MAX_BURST_LENGTH {1} \
-    ] [get_bd_intf_pins /cache_system_0/imem]
+  if {[dict get $is_harvard_arch $project_name]} {
+    set_property -dict [ list \
+      CONFIG.SUPPORTS_NARROW_BURST {0} \
+      CONFIG.NUM_READ_OUTSTANDING {1} \
+      CONFIG.NUM_WRITE_OUTSTANDING {1} \
+      CONFIG.MAX_BURST_LENGTH {1} \
+      ] [get_bd_intf_pins /cache_system_0/dmem]
 
-  set_property -dict [ list \
-    CONFIG.SUPPORTS_NARROW_BURST {0} \
-    CONFIG.NUM_READ_OUTSTANDING {1} \
-    CONFIG.NUM_WRITE_OUTSTANDING {1} \
-    CONFIG.MAX_BURST_LENGTH {1} \
-    ] [get_bd_intf_pins /cache_system_0/core_dmem]
+    set_property -dict [ list \
+      CONFIG.SUPPORTS_NARROW_BURST {0} \
+      CONFIG.NUM_READ_OUTSTANDING {1} \
+      CONFIG.NUM_WRITE_OUTSTANDING {1} \
+      CONFIG.MAX_BURST_LENGTH {1} \
+      ] [get_bd_intf_pins /cache_system_0/imem]
 
-  set_property -dict [ list \
-    CONFIG.SUPPORTS_NARROW_BURST {0} \
-    CONFIG.NUM_READ_OUTSTANDING {1} \
-    CONFIG.NUM_WRITE_OUTSTANDING {1} \
-    CONFIG.MAX_BURST_LENGTH {1} \
-    ] [get_bd_intf_pins /cache_system_0/core_imem]
+    set_property -dict [ list \
+      CONFIG.SUPPORTS_NARROW_BURST {0} \
+      CONFIG.NUM_READ_OUTSTANDING {1} \
+      CONFIG.NUM_WRITE_OUTSTANDING {1} \
+      CONFIG.MAX_BURST_LENGTH {1} \
+      ] [get_bd_intf_pins /cache_system_0/core_dmem]
+
+    set_property -dict [ list \
+      CONFIG.SUPPORTS_NARROW_BURST {0} \
+      CONFIG.NUM_READ_OUTSTANDING {1} \
+      CONFIG.NUM_WRITE_OUTSTANDING {1} \
+      CONFIG.MAX_BURST_LENGTH {1} \
+      ] [get_bd_intf_pins /cache_system_0/core_imem]
+  } else {
+    set_property -dict [ list \
+      CONFIG.SUPPORTS_NARROW_BURST {0} \
+      CONFIG.NUM_READ_OUTSTANDING {1} \
+      CONFIG.NUM_WRITE_OUTSTANDING {1} \
+      CONFIG.MAX_BURST_LENGTH {1} \
+      ] [get_bd_intf_pins /cache_system_0/mem]
+
+    set_property -dict [ list \
+      CONFIG.SUPPORTS_NARROW_BURST {0} \
+      CONFIG.NUM_READ_OUTSTANDING {1} \
+      CONFIG.NUM_WRITE_OUTSTANDING {1} \
+      CONFIG.MAX_BURST_LENGTH {1} \
+      ] [get_bd_intf_pins /cache_system_0/core_mem]
+  }
 }
 
 # Create instance: ps_dmem_ctrl, and set properties
