@@ -1,13 +1,22 @@
 # Create instance: swerv_0, and set properties
-  set swerv_0 [ create_bd_cell -type ip -vlnv [dict get $cpu_vlnv $project_name] swerv_0 ]
-  set cpu_clk [get_bd_pins swerv_0/clk]
+set swerv_0 [ create_bd_cell -type ip -vlnv [dict get $cpu_vlnv $project_name] swerv_0 ]
+set cpu_clk [get_bd_pins swerv_0/clk]
 
+if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
+  # Create interface connections
+  connect_bd_intf_net -intf_net VexRiscvAxi4_0_dBusAxi [get_bd_intf_pins swerv_0/lsu_axi] [get_bd_intf_pins cache_system_0/core_dmem]
+  connect_bd_intf_net -intf_net piccolo_0_cpu_imem_master [get_bd_intf_pins swerv_0/ifu_axi] [get_bd_intf_pins cache_system_0/core_imem]
+
+  connect_bd_intf_net -intf_net cache_system_0_dmem_master [get_bd_intf_pins cache_system_0/dmem] [get_bd_intf_pins axi_mem_intercon_1/S00_AXI]
+  set iaxi [get_bd_intf_pins cache_system_0/imem]
+} else {
   # Create interface connections
   connect_bd_intf_net [get_bd_intf_pins axi_mem_intercon_1/S00_AXI] [get_bd_intf_pins swerv_0/lsu_axi]
   set iaxi [get_bd_intf_pins swerv_0/ifu_axi]
-  
-  # Create port connections
-  connect_bd_net [get_bd_pins RVController_0/rv_rstn] [get_bd_pins swerv_0/rst_n]
+}
+
+# Create port connections
+connect_bd_net [get_bd_pins RVController_0/rv_rstn] [get_bd_pins swerv_0/rst_n]
 
 # Add debug module
 if 0 {
@@ -26,15 +35,28 @@ if 0 {
   create_bd_intf_port -mode Slave -vlnv esa.informatik.tu-darmstadt.de:user:DMI_rtl:1.0 DMI
   connect_bd_intf_net [get_bd_intf_ports DMI] [get_bd_intf_pins swerv_0/DMI]
 }
+if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
+  proc create_specific_addr_segs {} {
+    variable lmem
+    # Create specific address segments
+    create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_intf_pins cache_system_0/dmem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+    create_bd_addr_seg -range $lmem -offset $lmem [get_bd_intf_pins cache_system_0/dmem] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
+    create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_intf_pins cache_system_0/imem] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
+  }
 
-proc create_specific_addr_segs {} {
-  variable lmem
-  # Create specific address segments
-  create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces swerv_0/lsu_axi] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
-  create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces swerv_0/lsu_axi] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
-  create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces swerv_0/ifu_axi] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
-}
+  proc get_external_mem_addr_space {} {
+    return [get_bd_intf_pins cache_system_0/dmem]
+  }
+} else {
+  proc create_specific_addr_segs {} {
+    variable lmem
+    # Create specific address segments
+    create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces swerv_0/lsu_axi] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+    create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces swerv_0/lsu_axi] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
+    create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces swerv_0/ifu_axi] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
+  }
 
-proc get_external_mem_addr_space {} {
-  return [get_bd_addr_spaces swerv_0/lsu_axi]
+  proc get_external_mem_addr_space {} {
+    return [get_bd_addr_spaces swerv_0/lsu_axi]
+  }
 }

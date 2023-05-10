@@ -7,7 +7,7 @@ set is_cache_available [list \
   "flute32_pe"      {true} \
   "flute64_pe"      {true} \
   "picorv32_pe"     {true} \
-  "swerv_pe"        {false} \
+  "swerv_pe"        {true} \
   "scr1_pe"         {true} \
   "cva6_pe"         {false} \
   "swerv_eh2_pe"    {true} \
