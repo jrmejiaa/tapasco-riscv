@@ -8,6 +8,7 @@ BRAM_SIZE?=0x4000
 PYNQ=xc7z020clg400-1
 XLEN?=32
 CACHE?=false
+SET_CACHE_SYS?=false
 MAXI?=1
 
 ifndef TAPASCO_HOME
@@ -31,7 +32,7 @@ list:
 	@echo $(CORE_LIST)
 
 %_pe: %_setup
-	vivado -nolog -nojournal -mode batch -source riscv_pe_project.tcl -tclargs --part $(PYNQ) --bram $(BRAM_SIZE) --cache $(CACHE) --maxi $(MAXI) --project_name $@
+	vivado -nolog -nojournal -mode batch -source riscv_pe_project.tcl -tclargs --part $(PYNQ) --bram $(BRAM_SIZE) --cache $(CACHE) --set_cache_sys $(SET_CACHE_SYS) --maxi $(MAXI) --project_name $@
 	$(SILENTCMD)PE_ID=$$(($$(echo $(PE_LIST) | sed s/$@.*// | wc -w) + 1742)); \
 	tapasco -v import IP/$@/esa.informatik.tu-darmstadt.de_tapasco_$@_1.0.zip as $${PE_ID} --skipEvaluation
 
