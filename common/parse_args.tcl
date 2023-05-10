@@ -30,13 +30,14 @@ if { $::argc > 0 } {
   for {set i 0} {$i < [llength $::argv]} {incr i} {
     set option [string trim [lindex $::argv $i]]
     switch -regexp -- $option {
-      "--origin_dir"   { incr i; set origin_dir [lindex $::argv $i] }
-      "--part"         { incr i; set part [lindex $::argv $i] }
-      "--bram"         { incr i; set lmem [lindex $::argv $i] }
-      "--maxi"         { incr i; set maxi_ports [lindex $::argv $i] }
-      "--cache"		   { incr i; set cache [lindex $::argv $i] }
-      "--project_name" { incr i; set project_name [lindex $::argv $i] }
-      "--help"         { help }
+      "--origin_dir"    { incr i; set origin_dir [lindex $::argv $i] }
+      "--part"          { incr i; set part [lindex $::argv $i] }
+      "--bram"          { incr i; set lmem [lindex $::argv $i] }
+      "--maxi"          { incr i; set maxi_ports [lindex $::argv $i] }
+      "--cache"		      { incr i; set cache [lindex $::argv $i] }
+      "--set_cache_sys"	{ incr i; set set_cache_sys [lindex $::argv $i] }
+      "--project_name"  { incr i; set project_name [lindex $::argv $i] }
+      "--help"          { help }
       default {
         if { [regexp {^-} $option] } {
           puts "ERROR: Unknown option '$option' specified, please type '$script_file -tclargs --help' for usage info.\n"
