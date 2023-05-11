@@ -171,8 +171,16 @@ add_files -norecurse [file join [file dirname $bd_file] hdl/${project_name}_wrap
 set_property synth_checkpoint_mode Singular $bd_file
 generate_target all $bd_file
 
+# Update name of project if the cache was set for the core	
+if { $set_cache_sys && [dict get $is_cache_available $project_name] } {	
+  set ip_name [string map {"pe" "cache_pe"} $project_name]	
+} else {	
+  set ip_name $project_name	
+}
+
 puts "INFO: Project created:$project_name"
 puts "INFO: Packaging PE IP"
+puts "INFO: Packing name PE IP: $ip_name"
 source common/package.tcl
 
 exit

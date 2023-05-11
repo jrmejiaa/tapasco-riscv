@@ -14,6 +14,7 @@ foreach file [ipx::get_files -type systemCSource -of_objects $sim_fg] {
 # Basic information
 set_property vendor esa.informatik.tu-darmstadt.de $core
 set_property library tapasco $core
+set_property name $ip_name $core
 set_property display_name "$project_name Processing Element" $core
 set_property description "PE containing $project_name RISC-V processor" $core
 set_property vendor_display_name {ESA TU Darmstadt} $core
