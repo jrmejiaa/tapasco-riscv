@@ -54,11 +54,19 @@ source common/parse_args.tcl
 # sets is_cache_available
 source common/cache_availability.tcl
 
+
+# Update name of project if the cache was set for the core	
+if { $set_cache_sys && [dict get $is_cache_available $project_name] } {	
+  set ip_name [string map {"pe" "cache_pe"} $project_name]	
+} else {	
+  set ip_name $project_name	
+}
+
 # Set the directory path for the original project from where this script was exported
-set orig_proj_dir "[file normalize "$origin_dir/$project_name"]"
+set orig_proj_dir "[file normalize "$origin_dir/$ip_name"]"
 
 # Create project
-create_project -force ${project_name} ./${project_name} -part $part
+create_project -force ${ip_name} ./${ip_name} -part $part
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -170,13 +178,6 @@ make_wrapper -files $bd_file -top
 add_files -norecurse [file join [file dirname $bd_file] hdl/${project_name}_wrapper.v]
 set_property synth_checkpoint_mode Singular $bd_file
 generate_target all $bd_file
-
-# Update name of project if the cache was set for the core	
-if { $set_cache_sys && [dict get $is_cache_available $project_name] } {	
-  set ip_name [string map {"pe" "cache_pe"} $project_name]	
-} else {	
-  set ip_name $project_name	
-}
 
 puts "INFO: Project created:$project_name"
 puts "INFO: Packaging PE IP"
