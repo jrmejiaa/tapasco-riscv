@@ -27,15 +27,15 @@ if {[info exists dbram]} {
 	connect_bd_intf_net $dbram [get_bd_intf_pins dmem/BRAM_PORTA]
 } {
 	lappend axi_mem_slaves [get_bd_intf_pins rv_dmem_ctrl/S_AXI]
-	connect_bd_intf_net -intf_net rv_dmem_ctrl_BRAM_PORTA [get_bd_intf_pins dmem/BRAM_PORTA] [get_bd_intf_pins rv_dmem_ctrl/bram]
+	connect_bd_intf_net -intf_net rv_dmem_ctrl_BRAM_PORTA [get_bd_intf_pins dmem/BRAM_PORTA] [get_bd_intf_pins rv_dmem_ctrl/BRAM_PORTA]
 }
 if {[info exists ibram]} {
 	connect_bd_intf_net $ibram [get_bd_intf_pins imem/BRAM_PORTA]
 } elseif {[info exists iaxi]} {
-	connect_bd_intf_net [get_bd_intf_pins imem/BRAM_PORTA] [get_bd_intf_pins rv_imem_ctrl/bram]
+	connect_bd_intf_net [get_bd_intf_pins imem/BRAM_PORTA] [get_bd_intf_pins rv_imem_ctrl/BRAM_PORTA]
 	connect_bd_intf_net [get_bd_intf_pins rv_imem_ctrl/S_AXI] $iaxi
 } {
-	connect_bd_intf_net [get_bd_intf_pins imem/BRAM_PORTA] [get_bd_intf_pins rv_imem_ctrl/bram]
+	connect_bd_intf_net [get_bd_intf_pins imem/BRAM_PORTA] [get_bd_intf_pins rv_imem_ctrl/BRAM_PORTA]
 	lappend axi_mem_slaves [get_bd_intf_pins rv_imem_ctrl/S_AXI]
 }
 
@@ -71,8 +71,8 @@ if {$maxi_ports == 2} {
 	set_property CONFIG.ADDRESS_WIDTH $addr_width [get_bd_cells dmaOffset2]
 	set_property CONFIG.ADDR_WIDTH $addr_width [get_bd_intf_ports M_AXI2]
 }
-set_property CONFIG.BYTES_PER_WORD [expr $data_width / 8] [get_bd_cells rv_dmem_ctrl]
-set_property CONFIG.BYTES_PER_WORD [expr $data_width / 8] [get_bd_cells rv_imem_ctrl]
+set_property CONFIG.DATA_WIDTH $data_width [get_bd_cells rv_dmem_ctrl]
+set_property CONFIG.DATA_WIDTH $data_width [get_bd_cells rv_imem_ctrl]
 # keep second BRAM port in sync, otherwise problems with larger sizes
 set_property CONFIG.DATA_WIDTH $data_width [get_bd_cells ps_dmem_ctrl]
 set_property CONFIG.DATA_WIDTH $data_width [get_bd_cells ps_imem_ctrl]
