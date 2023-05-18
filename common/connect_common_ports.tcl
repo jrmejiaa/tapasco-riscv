@@ -12,7 +12,7 @@ if {$maxi_ports == 2} {
 
 if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
   connect_bd_net -net CLK_1 [get_bd_pins cache_system_0/CLK]
-  connect_bd_net -net RVController_0_rv_rstn [get_bd_pins cache_system_0/RST_N]
+  connect_bd_net [get_bd_pins RVController_0/rv_rstn] [get_bd_pins cache_system_0/RST_N]
   if {![dict get $is_harvard_arch $project_name]} {
     connect_bd_net [get_bd_ports CLK] [get_bd_pins axi_lite2full/ACLK] [get_bd_pins axi_lite2full/S00_ACLK] [get_bd_pins axi_lite2full/M00_ACLK]
     connect_bd_net [get_bd_pins rst_CLK_100M/peripheral_aresetn] [get_bd_pins axi_lite2full/ARESETN] [get_bd_pins axi_lite2full/S00_ARESETN] [get_bd_pins axi_lite2full/M00_ARESETN]
