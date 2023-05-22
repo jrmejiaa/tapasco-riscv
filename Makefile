@@ -44,7 +44,7 @@ list:
 %_pe: %_setup
 	vivado -nolog -nojournal -mode batch -source riscv_pe_project.tcl -tclargs --part $(PYNQ) --bram $(BRAM_SIZE) --cache $(CACHE) --set_cache_sys $(SET_CACHE_SYS) --maxi $(MAXI) --project_name $@
 	$(SILENTCMD)PE_ID=$$(($$(echo $(PE_LIST) | sed s/$@.*// | wc -w) + 1742)); \
-	tapasco -v import IP/$(PACKAGE_NAME)/esa.informatik.tu-darmstadt.de_tapasco_$(PACKAGE_NAME)_1.0.zip as $${PE_ID} --skipEvaluation
+	tapasco -v import IP/$(PACKAGE_NAME)/esa.informatik.tu-darmstadt.de_tapasco_$(PACKAGE_NAME)_1.0.zip as $${PE_ID}
 
 %_setup: riscv/%/setup.sh
 	$<
