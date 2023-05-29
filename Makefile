@@ -22,14 +22,15 @@ endif
 
 
 # PROGRAM DEPENDENT VARIABLES - DO NOT CHANGE
-PACKAGE_NAME=$@
 ifeq ($(SET_DDR_MEMORY),true)
+DDR_MEMORY = _ddr
+endif
 ifeq ($(SET_CACHE_SYS),true)
-PACKAGE_NAME=$*_ddr_cache_pe
-else
-PACKAGE_NAME=$*_ddr_pe
+CACHE_SYS = _cache
 endif
-endif
+
+PACKAGE_NAME = $*$(DDR_MEMORY)$(CACHE_SYS)_pe
+
 
 null :=
 space := $(null) #
