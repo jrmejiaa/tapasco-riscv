@@ -8,3 +8,18 @@ elf/
 *.elf
 *.jou
 .vscode/
+
+# Ignore generation files when creating PEs
+*_pe/
+IP/riscv/
+riscv/piccolo32/RV*/
+riscv/piccolo32/*.xpr
+riscv/piccolo32/*.zip
+riscv/flute32/RV*/
+riscv/flute32/*.xpr
+riscv/flute32/*.zip
+riscv/*/*.zip
+riscv/swerv_eh2/swerv_eh2/
+package_picorv32/
+dummy*/
+dummy*
