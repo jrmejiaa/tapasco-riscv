@@ -56,8 +56,12 @@ source common/cache_availability.tcl
 
 
 # Update name of project if the cache was set for the core	
-if { $set_cache_sys && [dict get $is_cache_available $project_name] } {	
+if { $set_ddr_memory && $set_cache_sys && [dict get $is_cache_available $project_name] } {	
+  set ip_name [string map {"pe" "ddr_cache_pe"} $project_name]	
+} elseif {$set_cache_sys && [dict get $is_cache_available $project_name]} {
   set ip_name [string map {"pe" "cache_pe"} $project_name]	
+} elseif {$set_ddr_memory} {
+  set ip_name [string map {"pe" "ddr_pe"} $project_name]	
 } else {	
   set ip_name $project_name	
 }
@@ -105,6 +109,7 @@ proc cr_bd_riscv_pe { parentCell lmem } {
   variable project_name
   variable cache
   variable set_cache_sys
+  variable set_ddr_memory
   variable maxi_ports
   variable is_cache_available
   variable is_harvard_arch
