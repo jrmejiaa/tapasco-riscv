@@ -35,28 +35,56 @@ connect_bd_net -net RVController_0_rv_rstn [get_bd_pins RVController_0/rv_rstn] 
 connect_bd_net -net flute32_0_RDY_cpu_reset_server_request_put [get_bd_pins RVController_0/reqRDY_req_rdy] [get_bd_pins flute32_0/RDY_cpu_reset_server_request_put]
 connect_bd_net -net flute32_0_RDY_cpu_reset_server_response_get [get_bd_pins RVController_0/resRDY_res_rdy] [get_bd_pins flute32_0/RDY_cpu_reset_server_response_get]
 
-if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
-  proc create_specific_addr_segs {} {
-    variable lmem
-    # Create specific address segments
-    create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
-    create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
-    create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces cache_system_0/imem] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
-  }
-
-  proc get_external_mem_addr_space {} {
-    return [get_bd_addr_spaces cache_system_0/dmem]
-  }
-} else { # Not cache create address segments for only the core
+if {!$set_ddr_memory} {
+  if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
     proc create_specific_addr_segs {} {
-    variable lmem
-    # Create address segments
-    create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces flute32_0/core_mem_master] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
-    create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces flute32_0/core_mem_master] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
-    create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces flute32_0/cpu_imem_master] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
-  }
+      variable lmem
+      # Create specific address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces cache_system_0/imem] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
+    }
 
-  proc get_external_mem_addr_space {} {
-    return [get_bd_addr_spaces flute32_0/core_mem_master]
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces cache_system_0/dmem]
+    }
+  } else { # Not cache create address segments for only the core
+      proc create_specific_addr_segs {} {
+      variable lmem
+      # Create address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces flute32_0/core_mem_master] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces flute32_0/core_mem_master] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces flute32_0/cpu_imem_master] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
+    }
+
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces flute32_0/core_mem_master]
+    }
+  }
+} else {
+  if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
+    proc create_specific_addr_segs {} {
+      variable lmem
+      # Create specific address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs M_AXI/Reg] M_AXI_DMem0
+      create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces cache_system_0/imem] [get_bd_addr_segs M_AXI/Reg] M_AXI_IMem0
+    }
+
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces cache_system_0/dmem]
+    }
+  } else { # Not cache create address segments for only the core
+      proc create_specific_addr_segs {} {
+      variable lmem
+      # Create address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces flute32_0/core_mem_master] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces flute32_0/core_mem_master] [get_bd_addr_segs M_AXI/Reg] M_AXI_DMem0
+      create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces flute32_0/cpu_imem_master] [get_bd_addr_segs M_AXI/Reg] M_AXI_IMem0
+    }
+
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces flute32_0/core_mem_master]
+    }
   }
 }
