@@ -54,7 +54,7 @@ if {!$set_ddr_memory} {
     }
 
     proc get_external_mem_addr_space {} {
-      return get_bd_addr_spaces cache_system_0/dmem
+      return [get_bd_addr_spaces cache_system_0/dmem]
     }
   } else { # Not cache create address segments for only the core
     proc create_specific_addr_segs {} {
