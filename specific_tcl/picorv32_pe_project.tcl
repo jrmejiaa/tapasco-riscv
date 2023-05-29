@@ -36,28 +36,56 @@ connect_bd_net -net RVController_0_rv_rstn [get_bd_pins RVController_0/rv_rstn] 
 
 save_bd_design
 
-if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
-  proc create_specific_addr_segs {} {
-    variable lmem
-    # Create address segments
-    create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cache_system_0/mem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
-    create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces cache_system_0/mem] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
-    create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces cache_system_0/mem] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
-  }
+if {!$set_ddr_memory} {
+  if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
+    proc create_specific_addr_segs {} {
+      variable lmem
+      # Create address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cache_system_0/mem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces cache_system_0/mem] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces cache_system_0/mem] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
+    }
 
-  proc get_external_mem_addr_space {} {
-    return [get_bd_addr_spaces cache_system_0/mem]
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces cache_system_0/mem]
+    }
+  } else {
+    proc create_specific_addr_segs {} {
+      variable lmem
+      # Create address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces picorv32_0/mem_axi] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces picorv32_0/mem_axi] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces picorv32_0/mem_axi] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
+    }
+
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces picorv32_0/mem_axi]
+    }
   }
 } else {
-  proc create_specific_addr_segs {} {
-    variable lmem
-    # Create address segments
-    create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces picorv32_0/mem_axi] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
-    create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces picorv32_0/mem_axi] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
-    create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces picorv32_0/mem_axi] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
-  }
+  if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
+    proc create_specific_addr_segs {} {
+      variable lmem
+      # Create address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cache_system_0/mem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces cache_system_0/mem] [get_bd_addr_segs M_AXI/Reg] M_AXI_DMem0
+      create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces cache_system_0/mem] [get_bd_addr_segs M_AXI/Reg] M_AXI_IMem0
+    }
 
-  proc get_external_mem_addr_space {} {
-    return [get_bd_addr_spaces picorv32_0/mem_axi]
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces cache_system_0/mem]
+    }
+  } else {
+    proc create_specific_addr_segs {} {
+      variable lmem
+      # Create address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces picorv32_0/mem_axi] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range $lmem -offset $lmem [get_bd_addr_spaces picorv32_0/mem_axi] [get_bd_addr_segs M_AXI/Reg] M_AXI_DMem0
+      create_bd_addr_seg -range $lmem -offset 0x00000000 [get_bd_addr_spaces picorv32_0/mem_axi] [get_bd_addr_segs M_AXI/Reg] M_AXI_IMem0
+    }
+
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces picorv32_0/mem_axi]
+    }
   }
 }
