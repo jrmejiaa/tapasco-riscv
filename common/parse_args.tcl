@@ -36,6 +36,7 @@ if { $::argc > 0 } {
       "--maxi"          { incr i; set maxi_ports [lindex $::argv $i] }
       "--cache"		      { incr i; set cache [lindex $::argv $i] }
       "--set_cache_sys"	{ incr i; set set_cache_sys [lindex $::argv $i] }
+      "--ddr_memory"    { incr i; set set_ddr_memory [lindex $::argv $i] }
       "--project_name"  { incr i; set project_name [lindex $::argv $i] }
       "--help"          { help }
       default {

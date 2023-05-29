@@ -9,6 +9,7 @@ PYNQ=xc7z020clg400-1
 XLEN?=32
 CACHE?=false
 SET_CACHE_SYS?=false
+SET_DDR_MEMORY?=false
 MAXI?=1
 
 ifndef TAPASCO_HOME
@@ -22,8 +23,12 @@ endif
 
 # PROGRAM DEPENDENT VARIABLES - DO NOT CHANGE
 PACKAGE_NAME=$@
+ifeq ($(SET_DDR_MEMORY),true)
 ifeq ($(SET_CACHE_SYS),true)
-PACKAGE_NAME=$*_cache_pe
+PACKAGE_NAME=$*_ddr_cache_pe
+else
+PACKAGE_NAME=$*_ddr_pe
+endif
 endif
 
 null :=
@@ -36,13 +41,15 @@ PE_LIST_SEPARATED=$(subst $(space),$(comma),$(strip $(PE_LIST)))
 PE_CACHE_LIST=$(addsuffix _cache_pe, $(CORE_LIST))
 PE_CACHE_LIST_SEPARATED=$(subst $(space),$(comma),$(strip $(PE_CACHE_LIST)))
 
+TCL_ARGS:=--part $(PYNQ) --bram $(BRAM_SIZE) --cache $(CACHE) --set_cache_sys $(SET_CACHE_SYS) --maxi $(MAXI) --ddr_memory $(SET_DDR_MEMORY)
+
 all: $(PE_LIST)
 
 list:
 	@echo $(CORE_LIST)
 
 %_pe: %_setup
-	vivado -nolog -nojournal -mode batch -source riscv_pe_project.tcl -tclargs --part $(PYNQ) --bram $(BRAM_SIZE) --cache $(CACHE) --set_cache_sys $(SET_CACHE_SYS) --maxi $(MAXI) --project_name $@
+	vivado -nolog -nojournal -mode batch -source riscv_pe_project.tcl -tclargs $(TCL_ARGS) --project_name $@
 	$(SILENTCMD)PE_ID=$$(($$(echo $(PE_LIST) | sed s/$@.*// | wc -w) + 1742)); \
 	tapasco -v import IP/$(PACKAGE_NAME)/esa.informatik.tu-darmstadt.de_tapasco_$(PACKAGE_NAME)_1.0.zip as $${PE_ID}
 
