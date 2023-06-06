@@ -73,4 +73,4 @@ clean: uninstall
 	$(SILENTCMD)rm -rf riscv/cva5/{cva5,openhwgroup_risc-v_cva5.zip}
 	$(SILENTCMD)rm -rf riscv/vexriscv/{SpinalHDL,VexRiscv}
 	$(SILENTCMD)rm -rf riscv/cva6/cva6
-	$(SILENTCMD)rm *.log
+	$(SILENTCMD)rm -f *.log
