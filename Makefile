@@ -36,10 +36,10 @@ null :=
 space := $(null) #
 comma := ,
 CORE_LIST=$(patsubst riscv/%,%,$(wildcard riscv/*))
-PE_LIST=$(addsuffix _pe, $(CORE_LIST))
+PE_LIST=$(addsuffix _pe, $(CORE_LIST)) $(addsuffix _ddr_pe, $(CORE_LIST))
 PE_LIST_SEPARATED=$(subst $(space),$(comma),$(strip $(PE_LIST)))
 
-PE_CACHE_LIST=$(addsuffix _cache_pe, $(CORE_LIST))
+PE_CACHE_LIST=$(addsuffix _cache_pe, $(CORE_LIST)) $(addsuffix _ddr_cache_pe, $(CORE_LIST))
 PE_CACHE_LIST_SEPARATED=$(subst $(space),$(comma),$(strip $(PE_CACHE_LIST)))
 
 TCL_ARGS:=--part $(PYNQ) --bram $(BRAM_SIZE) --cache $(CACHE) --set_cache_sys $(SET_CACHE_SYS) --maxi $(MAXI) --ddr_memory $(SET_DDR_MEMORY)
@@ -73,3 +73,4 @@ clean: uninstall
 	$(SILENTCMD)rm -rf riscv/cva5/{cva5,openhwgroup_risc-v_cva5.zip}
 	$(SILENTCMD)rm -rf riscv/vexriscv/{SpinalHDL,VexRiscv}
 	$(SILENTCMD)rm -rf riscv/cva6/cva6
+	$(SILENTCMD)rm *.log
