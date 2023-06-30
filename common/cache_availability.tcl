@@ -9,7 +9,7 @@ set is_cache_available [list \
   "picorv32_pe"     {true} \
   "swerv_pe"        {true} \
   "scr1_pe"         {true} \
-  "cva6_pe"         {false} \
+  "cva6_pe"         {true} \
   "swerv_eh2_pe"    {true} \
   "cva5_pe"         {false} \
 ]
