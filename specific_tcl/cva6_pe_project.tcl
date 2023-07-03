@@ -68,8 +68,11 @@ if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
 } else {
   # Connect to dmem AXI port
   connect_bd_intf_net -boundary_type upper [get_bd_intf_pins cva6_mem_splitter/M01_AXI] [get_bd_intf_pins axi_mem_intercon_1/S00_AXI]
-  # imem connection is done via the iaxi variable
-  set iaxi [get_bd_intf_pins cva6_mem_splitter/M02_AXI]
+
+  if {!$set_ddr_memory} {
+    # imem connection is done via the iaxi variable
+    set iaxi [get_bd_intf_pins cva6_mem_splitter/M02_AXI]
+  }
   # This port is used to determine the address and data widths
   set axi_mem_port [get_bd_intf_pins cva6_0/io_axi_mem]
 }
@@ -138,75 +141,146 @@ if 0 {
   connect_bd_intf_net [get_bd_intf_ports DMI] [get_bd_intf_pins cva6_dm_0/DMI]
 }
 
-if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
-  proc create_specific_addr_segs {} {
-    variable lmem
-    variable DMEM_BASE
-    variable DMEM_LENGTH
-    variable IMEM_BASE
-    variable IMEM_LENGTH
-    variable CLINT_BASE
-    variable CLINT_LENGTH
-    variable DEBUG_BASE
-    variable DEBUG_LENGTH
+if {!$set_ddr_memory} {
+  if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
+    proc create_specific_addr_segs {} {
+      variable lmem
+      variable DMEM_BASE
+      variable DMEM_LENGTH
+      variable IMEM_BASE
+      variable IMEM_LENGTH
+      variable CLINT_BASE
+      variable CLINT_LENGTH
+      variable DEBUG_BASE
+      variable DEBUG_LENGTH
 
-    # Create specific address segments
-    create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      # Create specific address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
 
-    create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cache_system_0/core_dmem/reg0] SEG_aximem_dmem_ctrl_Mem0
-    create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cache_system_0/core_dmem/reg0] SEG_cva6dm_dmem_ctrl_Mem0
-    create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cache_system_0/core_dmem/reg0] SEG_aximem_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cache_system_0/core_dmem/reg0] SEG_cva6dm_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
 
-    create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cache_system_0/core_imem/reg0] SEG_aximem_imem_ctrl_Mem0
-    create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cache_system_0/core_imem/reg0] SEG_cb46dm_imem_ctrl_Mem0
-    create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cache_system_0/imem] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
+      create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cache_system_0/core_imem/reg0] SEG_aximem_imem_ctrl_Mem0
+      create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cache_system_0/core_imem/reg0] SEG_cb46dm_imem_ctrl_Mem0
+      create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cache_system_0/imem] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
 
-    # Additional address sections for DM and timer
-    # Timer
-    create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
-    create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
-    # DM
-    create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
-    create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
-  }
+      # Additional address sections for DM and timer
+      # Timer
+      create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
+      create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
+      # DM
+      create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
+      create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
+    }
 
-  proc get_external_mem_addr_space {} {
-    return [get_bd_addr_spaces cache_system_0/dmem]
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces cache_system_0/dmem]
+    }
+  } else {
+    proc create_specific_addr_segs {} {
+      variable lmem
+      variable DMEM_BASE
+      variable DMEM_LENGTH
+      variable IMEM_BASE
+      variable IMEM_LENGTH
+      variable CLINT_BASE
+      variable CLINT_LENGTH
+      variable DEBUG_BASE
+      variable DEBUG_LENGTH
+
+      # Create specific address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
+      create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
+
+      # Additional address sections for DM and timer
+      # Timer
+      create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
+      create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
+      # DM
+      create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
+      create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
+    }
+
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces cva6_0/io_axi_mem]
+    }
+
+    proc get_external_mem_addr_space2 {} {
+      return [get_bd_addr_spaces cva6_dm_0/axi_dm_master]
+    }
   }
 } else {
-  proc create_specific_addr_segs {} {
-    variable lmem
-    variable DMEM_BASE
-    variable DMEM_LENGTH
-    variable IMEM_BASE
-    variable IMEM_LENGTH
-    variable CLINT_BASE
-    variable CLINT_LENGTH
-    variable DEBUG_BASE
-    variable DEBUG_LENGTH
+  if { $set_cache_sys && [dict get $is_cache_available $project_name] } {
+    proc create_specific_addr_segs {} {
+      variable lmem
+      variable DMEM_BASE
+      variable DMEM_LENGTH
+      variable IMEM_BASE
+      variable IMEM_LENGTH
+      variable CLINT_BASE
+      variable CLINT_LENGTH
+      variable DEBUG_BASE
+      variable DEBUG_LENGTH
 
-    # Create specific address segments
-    create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
-    create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
-    create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
-    create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs rv_dmem_ctrl/S_AXI/Mem0] SEG_rv_dmem_ctrl_Mem0
-    create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
-    create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs rv_imem_ctrl/S_AXI/Mem0] SEG_rv_imem_ctrl_Mem0
+      # # Create specific address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
 
-    # Additional address sections for DM and timer
-    # Timer
-    create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
-    create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
-    # DM
-    create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
-    create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
-  }
+      create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cache_system_0/core_dmem/reg0] SEG_aximem_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cache_system_0/core_dmem/reg0] SEG_cva6dm_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $DMEM_LENGTH -offset $DMEM_BASE [get_bd_addr_spaces cache_system_0/dmem] [get_bd_addr_segs M_AXI/Reg] SEG_rv_dmem_ctrl_Mem0
 
-  proc get_external_mem_addr_space {} {
-    return [get_bd_addr_spaces cva6_0/io_axi_mem]
-  }
+      create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cache_system_0/core_imem/reg0] SEG_aximem_imem_ctrl_Mem0
+      create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cache_system_0/core_imem/reg0] SEG_cb46dm_imem_ctrl_Mem0
+      create_bd_addr_seg -range $IMEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cache_system_0/imem] [get_bd_addr_segs M_AXI/Reg] SEG_rv_imem_ctrl_Mem0
 
-  proc get_external_mem_addr_space2 {} {
-    return [get_bd_addr_spaces cva6_dm_0/axi_dm_master]
+      # Additional address sections for DM and timer
+      # Timer
+      create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
+      create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
+      # DM
+      create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
+      create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
+    }
+
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces cache_system_0/dmem]
+    }
+  } else {
+    proc create_specific_addr_segs {} {
+      variable lmem
+      variable DMEM_BASE
+      variable DMEM_LENGTH
+      variable IMEM_BASE
+      variable IMEM_LENGTH
+      variable CLINT_BASE
+      variable CLINT_LENGTH
+      variable DEBUG_BASE
+      variable DEBUG_LENGTH
+
+      set TOT_MEM_LENGTH [expr {$DMEM_LENGTH + $IMEM_LENGTH}]
+
+      # Create specific address segments
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range 0x00010000 -offset 0x11000000 [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs RVController_0/saxi/reg0] SEG_RVController_0_reg0
+      create_bd_addr_seg -range $TOT_MEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs M_AXI/Reg] SEG_rv_dmem_ctrl_Mem0
+      create_bd_addr_seg -range $TOT_MEM_LENGTH -offset $IMEM_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs M_AXI/Reg] SEG_rv_dmem_ctrl_Mem0
+
+      # Additional address sections for DM and timer
+      # Timer
+      create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
+      create_bd_addr_seg -range $CLINT_LENGTH -offset $CLINT_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_timer_0/axi_timer/reg0] SEG_cva6_clint
+      # DM
+      create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_0/io_axi_mem] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
+      create_bd_addr_seg -range $DEBUG_LENGTH -offset $DEBUG_BASE [get_bd_addr_spaces cva6_dm_0/axi_dm_master] [get_bd_addr_segs cva6_dm_0/axi_dm_slave/reg0] SEG_cva6_dm
+    }
+
+    proc get_external_mem_addr_space {} {
+      return [get_bd_addr_spaces cva6_0/io_axi_mem]
+    }
   }
 }
