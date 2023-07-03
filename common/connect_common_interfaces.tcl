@@ -80,7 +80,7 @@ puts "Configure data path to ${addr_width}-bit address width and ${data_width}-b
 set_property CONFIG.DATA_WIDTH $data_width [get_bd_intf_ports M_AXI]
 set_property CONFIG.ADDR_WIDTH $addr_width [get_bd_intf_ports M_AXI]
 
-if (!$set_ddr_memory) {
+if {!$set_ddr_memory} {
   set_property CONFIG.BYTES_PER_WORD [expr $data_width / 8] [get_bd_cells dmaOffset]
   set_property CONFIG.ADDRESS_WIDTH $addr_width [get_bd_cells dmaOffset]
 
