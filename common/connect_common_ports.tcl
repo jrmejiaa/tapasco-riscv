@@ -10,7 +10,7 @@ if {$maxi_ports == 2} {
   connect_bd_net -net rst_CLK_100M_peripheral_aresetn [get_bd_pins dmaOffset2/RST_N]
 }
 
-if {$set_ddr_memory && [info exists iaxi]} {
+if {($set_ddr_memory && [info exists iaxi]) || ($set_ddr_memory && $project_name eq "cva6_pe")} {
   connect_bd_net [get_bd_ports CLK] [get_bd_pins axi_merge_interconnect_1/ACLK] [get_bd_pins axi_merge_interconnect_1/S00_ACLK] [get_bd_pins axi_merge_interconnect_1/M00_ACLK] [get_bd_pins axi_merge_interconnect_1/S01_ACLK]
   connect_bd_net [get_bd_pins rst_CLK_100M/interconnect_aresetn] [get_bd_pins axi_merge_interconnect_1/ARESETN] [get_bd_pins axi_merge_interconnect_1/S00_ARESETN] [get_bd_pins axi_merge_interconnect_1/M00_ARESETN] [get_bd_pins axi_merge_interconnect_1/S01_ARESETN]
 }
